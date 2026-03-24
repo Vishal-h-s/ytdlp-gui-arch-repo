@@ -1,4 +1,4 @@
-name: Build ytdlp-gui for aarch64
+name: Build ytdlp-gui for Arch Linux
 
 on:
   schedule:
@@ -15,24 +15,20 @@ jobs:
           repository: BKSalman/ytdlp-gui
           ref: main
 
-      # Updated to v3 to fix the Node 20 warning
-      - name: Build in Arch Linux ARM container
-        uses: uraimo/run-on-arch-action@v3 
-        with:
-          arch: aarch64
-          # Fixed the distribution name to Arch ARM
-          distro: archarm_latest 
-          githubToken: ${{ github.token }}
-          run: |
-            pacman -Syu --noconfirm base-devel rustup git pkgconf gtk3 cmake
-            rustup toolchain install stable
-            rustup default stable
-            cargo build --release
-            
-            cp target/release/ytdlp-gui ./ytdlp-gui-aarch64
+      # Run a native Arch Linux container, install tools, and build
+      - name: Build inside Arch Linux
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace archlinux:latest sh -c "
+            pacman -Syu --noconfirm base-devel rustup cmake pkgconf gtk3 git &&
+            rustup toolchain install stable &&
+            rustup default stable &&
+            cargo build --release &&
+            cp target/release/ytdlp-gui ./ytdlp-gui-arch &&
+            chmod 777 ./ytdlp-gui-arch
+          "
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ytdlp-gui-aarch64
-          path: ./ytdlp-gui-aarch64
+          name: ytdlp-gui-arch
+          path: ./ytdlp-gui-arch
