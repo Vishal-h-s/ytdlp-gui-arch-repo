@@ -23,9 +23,9 @@ jobs:
           arch: aarch64
           distro: archlinux_latest
           githubToken: ${{ github.token }}
-          # 3. Install dependencies and compile the Rust project natively for Arch ARM
+          # 3. Install dependencies (added gtk3 and cmake for the GUI) and compile
           run: |
-            pacman -Syu --noconfirm base-devel rustup git pkgconf
+            pacman -Syu --noconfirm base-devel rustup git pkgconf gtk3 cmake
             rustup toolchain install stable
             rustup default stable
             cargo build --release
